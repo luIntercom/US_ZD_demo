@@ -39,11 +39,11 @@
       <button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
     </div>
   <script>
-    window.Intercom("boot", {
+    window.intercomSettings = {
       api_base: "https://api-iam.intercom.io",
       app_id: "z1n0atmw",
       intercom_user_jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTUzNzg2MjYiLCJlbWFpbCI6Imx1aXMtcGV0dGl0QGhvdG1haWwuY29tIiwiaWF0IjoxNzUzMTMzODk0fQ.-F8p87VTxdC9hJwctVwlFoJeZEr7bjybsr4Qcp6F2MU",               // Required - JWT token generated on your server
-    });
+    };
   </script>
 <script>
   // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/z1n0atmw'
