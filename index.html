@@ -38,16 +38,17 @@
       </div>
       <button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
     </div>
-    <script>
-      window.intercomSettings = {
-        api_base: "https://api-iam.intercom.io",
-        app_id: "j037od9u",
-        user_id: "15378626",
-        auth_tokens: {
-          secret_token: "JWT_token_for_15378626"
-        }
-      }
-    </script>
+  <script>
+    window.Intercom("boot", {
+      api_base: "https://api-iam.intercom.io",
+      app_id: "z1n0atmw"//,
+      //intercom_user_jwt: "<TOKEN>",               // Required - JWT token generated on your server
+    });
+  </script>
+<script>
+  // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/z1n0atmw'
+  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+</script>
 
     <!-- Start of d3v-mdl7288 Zendesk Widget script -->
     <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=d64fee1d-140f-45c5-b67c-11774b704874"> 
@@ -55,8 +56,6 @@
     <!-- End of d3v-mdl7288 Zendesk Widget script --> 
     
     
-    <!-- Start of d3v-mdl7288 Zendesk Widget script -->
-<script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=d64fee1d-140f-45c5-b67c-11774b704874"> </script>
-<!-- End of d3v-mdl7288 Zendesk Widget script -->
+
   </body>
 </html>
