@@ -59,18 +59,13 @@
             <p><strong>Email:</strong> <span id="currentEmail">Not loaded</span></p>
             <p><strong>User ID:</strong> <span id="currentUserId">Not loaded</span></p>
         </div>
+        <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; color: #856404; font-size: 14px;"><strong>Note:</strong> If name and email are not appearing in Intercom, your workspace may have Identity Verification enabled. This requires a user_hash to be generated server-side to pass name/email securely.</p>
+        </div>
         <button onclick="loadNewUser()">Load New User</button>
     </div>
 
     <script>
-        // Intercom installation
-        window.intercomSettings = {
-            api_base: "https://api-iam.intercom.io",
-            app_id: "z1n0atmw"
-        };
-
-        (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
-
         // Array of sample first names
         const firstNames = [
             'Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan', 'Sophia', 'Mason',
@@ -103,7 +98,7 @@
                 app_id: "z1n0atmw",
                 name: firstName,
                 email: email,
-                user_id: userId
+                user_id: userId.toString()
             });
 
             // Update display
@@ -112,10 +107,29 @@
             document.getElementById('currentUserId').textContent = userId;
         }
 
-        // Load initial user on page load
-        window.addEventListener('load', function() {
-            setTimeout(loadNewUser, 1000);
-        });
+        // Initialize Intercom with first user
+        (function() {
+            const firstName = getRandomName();
+            const userId = generateUserId();
+            const email = `${firstName.toLowerCase()}@zddemo.com`;
+
+            // Set initial intercom settings with user data
+            window.intercomSettings = {
+                api_base: "https://api-iam.intercom.io",
+                app_id: "z1n0atmw",
+                name: firstName,
+                email: email,
+                user_id: userId.toString()
+            };
+
+            // Update display
+            document.getElementById('currentUser').textContent = firstName;
+            document.getElementById('currentEmail').textContent = email;
+            document.getElementById('currentUserId').textContent = userId;
+
+            // Load Intercom script
+            var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}
+        })();
     </script>
 </body>
 </html>
