@@ -43,6 +43,10 @@
         currentUserIndex = (currentUserIndex + 1) % users.length;
         const newUser = users[currentUserIndex];
         
+        if (window.Intercom) {
+          window.Intercom('shutdown');
+        }
+
         window.intercomSettings = {
           api_base: "https://api-iam.intercom.io",
           app_id: "z1n0atmw",
@@ -51,12 +55,12 @@
           name: newUser.name
         };
 
-        if (window.Intercom) {
-          window.Intercom('shutdown');
-          window.Intercom('boot', window.intercomSettings);
-        }
-
-        updateUserDisplay();
+        setTimeout(() => {
+          if (window.Intercom) {
+            window.Intercom('boot', window.intercomSettings);
+          }
+          updateUserDisplay();
+        }, 100);
       }
 
       function updateUserDisplay() {
