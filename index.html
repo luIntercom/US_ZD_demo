@@ -1,110 +1,122 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Fin ZD demo</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      const names = [
-        "James", "Tess", "Mike", "Sarah", "Luis", 
-        "Emma", "Oliver", "Sophia", "Liam", "Ava",
-        "Noah", "Isabella", "Ethan", "Mia", "Lucas"
-      ];
-
-      function generateUserId() {
-        return Math.floor(Math.random() * 90000000) + 10000000;
-      }
-
-      function generateEmail(name) {
-        return `${name.toLowerCase()}@zd_demo@email.com`;
-      }
-
-      const users = names.map(name => ({
-        user_id: generateUserId().toString(),
-        email: generateEmail(name),
-        name: name
-      }));
-
-      let currentUserIndex = 0;
-
-      function reset() {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    <title>Intercom Messenger Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
         }
-        window.location.reload();
-      }
-
-      function loadNewUser() {
-        currentUserIndex = (currentUserIndex + 1) % users.length;
-        const newUser = users[currentUserIndex];
-        
-        if (window.Intercom) {
-          window.Intercom('shutdown');
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        window.intercomSettings = {
-          api_base: "https://api-iam.intercom.io",
-          app_id: "z1n0atmw",
-          //user_id: newUser.user_id,
-          //email: newUser.email,
-          //name: newUser.name,
-          user_id: "12",
-          email: "test@mail.com",
-          name: "test name"
-        };
-
-        setTimeout(() => {
-          if (window.Intercom) {
-            window.Intercom('boot', window.intercomSettings);
-          }
-          updateUserDisplay();
-        }, 100);
-      }
-
-      function updateUserDisplay() {
-        const display = document.getElementById('current-user');
-        if (display) {
-          display.textContent = `Current User: ${window.intercomSettings.name} (${window.intercomSettings.email})`;
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
         }
-      }
-
-      window.onload = function() {
-        updateUserDisplay();
-      };
-    </script>
-  </head>
-  <body class="p-6 flex flex-col flex-1 items-center justify-center min-h-screen bg-cover" style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
-    <div class="flex flex-col space-y-2 items-center">
-      <div>
-        <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" height="50" width="50">
-      </div>
-      <div id="current-user" class="text-white bg-black bg-opacity-50 px-4 py-2 rounded text-sm"></div>
-      <div class="flex space-x-2">
-        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" onclick="loadNewUser()">New User</button>
-        <button class="bg-black text-white px-4 py-2 rounded hover:bg-opacity-75 transition" onclick="reset()">Reset</button>
-      </div>
+        .info {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0891b2;
+        }
+        .info p {
+            margin: 5px 0;
+            color: #0e7490;
+        }
+        button {
+            background: #0891b2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0e7490;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Intercom Messenger Demo</h1>
+        <div class="info">
+            <p><strong>Current User:</strong> <span id="currentUser">Not loaded</span></p>
+            <p><strong>Email:</strong> <span id="currentEmail">Not loaded</span></p>
+            <p><strong>User ID:</strong> <span id="currentUserId">Not loaded</span></p>
+        </div>
+        <button onclick="loadNewUser()">Load New User</button>
     </div>
 
-<script>
-  window.intercomSettings = {
-    api_base: "https://api-iam.intercom.io",
-    app_id: "z1n0atmw",
-    user_id: users[0].user_id,
-    email: users[0].email,
-    name: users[0].name
-  };
-</script>
-<script>
-  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
-</script>
-    
-<!-- Start of d3v-mdlsolutions Zendesk Widget script -->
-<script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
-<!-- End of d3v-mdlsolutions Zendesk Widget script -->  
-  </body>
+    <script>
+        // Intercom installation
+        window.intercomSettings = {
+            api_base: "https://api-iam.intercom.io",
+            app_id: "z1n0atmw"
+        };
+
+        (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+
+        // Array of sample first names
+        const firstNames = [
+            'Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan', 'Sophia', 'Mason',
+            'Isabella', 'William', 'Mia', 'James', 'Charlotte', 'Benjamin', 'Amelia',
+            'Lucas', 'Harper', 'Henry', 'Evelyn', 'Alexander', 'Abigail', 'Michael',
+            'Emily', 'Daniel', 'Elizabeth', 'Matthew', 'Sofia', 'Jackson', 'Avery',
+            'Sebastian', 'Ella', 'Jack', 'Scarlett', 'Aiden', 'Grace', 'Owen',
+            'Chloe', 'Samuel', 'Victoria', 'David', 'Riley', 'Joseph', 'Aria'
+        ];
+
+        function getRandomName() {
+            return firstNames[Math.floor(Math.random() * firstNames.length)];
+        }
+
+        function generateUserId() {
+            return Math.floor(Math.random() * 1000000);
+        }
+
+        function loadNewUser() {
+            const firstName = getRandomName();
+            const userId = generateUserId();
+            const email = `${firstName.toLowerCase()}@zddemo.com`;
+
+            // Update Intercom with new user
+            window.Intercom('boot', {
+                api_base: "https://api-iam.intercom.io",
+                app_id: "z1n0atmw",
+                name: firstName,
+                email: email,
+                user_id: userId
+            });
+
+            // Update display
+            document.getElementById('currentUser').textContent = firstName;
+            document.getElementById('currentEmail').textContent = email;
+            document.getElementById('currentUserId').textContent = userId;
+        }
+
+        // Load initial user on page load
+        window.addEventListener('load', function() {
+            setTimeout(loadNewUser, 1000);
+        });
+    </script>
+
+    <!-- Start of d3v-mdlsolutions Zendesk Widget script -->
+    <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
+    <!-- End of d3v-mdlsolutions Zendesk Widget script -->
+</body>
 </html>
