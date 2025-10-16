@@ -94,7 +94,10 @@
             const userId = generateUserId();
             const email = `${firstName.toLowerCase()}@zddemo.com`;
 
-            // Update Intercom with new user
+            // Shutdown current Intercom session
+            window.Intercom('shutdown');
+
+            // Boot Intercom with new user
             window.Intercom('boot', {
                 api_base: "https://api-iam.intercom.io",
                 app_id: "z1n0atmw",
@@ -114,9 +117,5 @@
             setTimeout(loadNewUser, 1000);
         });
     </script>
-
-    <!-- Start of d3v-mdlsolutions Zendesk Widget script -->
-    <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
-    <!-- End of d3v-mdlsolutions Zendesk Widget script -->
 </body>
 </html>
