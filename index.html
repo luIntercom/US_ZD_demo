@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<title>Fin for SFDC</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+function reset() {
+const cookies = document.cookie.split(";");
+for (let i = 0; i < cookies.length; i++) {
+const cookie = cookies[i];
+const eqPos = cookie.indexOf("=");
+const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+}
+window.localStorage.clear();
+window.sessionStorage.clear();
+window.location.reload();
+}
+
+function toggleForm() {
+const form = document.getElementById("ticketForm");
+form.classList.toggle("hidden");
+}
+
+function submitTicket(e) {
+e.preventDefault();
+const name = document.getElementById("ticketName").value;
+const email = document.getElementById("ticketEmail").value;
+const subject = document.getElementById("ticketSubject").value;
+const message = document.getElementById("ticketMessage").value;
+
+// For demo: just log form values
+console.log({ name, email, subject, message });
+alert("Ticket submitted successfully!");
+
+// Reset and hide form
+document.getElementById("ticketForm").reset();
+toggleForm();
+}
+</script>
+</head>
+<body class="p-6 flex flex-col flex-1 items-center justify-center min-h-screen bg-cover" 
+style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
+
+<div class="flex flex-col space-y-2 items-center">
+<div>
+<img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" height="50" width="50">
+</div>
+<button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
+<button class="bg-blue-600 text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="toggleForm()">Submit Ticket</button>
+</div>
+
+<!-- Hidden Ticket Form -->
+<form id="ticketForm" class="hidden bg-white shadow-md rounded-lg p-6 mt-6 w-80">
+<h2 class="text-lg font-semibold mb-4">Submit a Ticket</h2>
+<input id="ticketName" type="text" placeholder="Your Name" class="w-full border rounded p-2 mb-2" required>
+<input id="ticketEmail" type="email" placeholder="Your Email" class="w-full border rounded p-2 mb-2" required>
+<input id="ticketSubject" type="text" placeholder="Subject" class="w-full border rounded p-2 mb-2" required>
+<textarea id="ticketMessage" placeholder="Message" class="w-full border rounded p-2 mb-4" rows="3" required></textarea>
+<div class="flex justify-between">
+<button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="submitTicket(event)">Submit</button>
+<button type="button" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onclick="toggleForm()">Cancel</button>
+</div>
+</form>
+
+<script>
+(function(){
+var w=window;var ic=w.Intercom;
+if(typeof ic==="function"){
+ic('reattach_activator');ic('update',w.intercomSettings);
+} else {
+var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};
+w.Intercom=i;var l=function(){
+var s=d.createElement('script');s.type='text/javascript';s.async=true;
+s.src='https://widget.intercom.io/widget/nzmi3xql';
+var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);
+};
+if(document.readyState==='complete'){l();}
+else if(w.attachEvent){w.attachEvent('onload',l);}
+else{w.addEventListener('load',l,false);}
+}
+})();
+</script>
+
+    <script>
+  window.intercomSettings = {
+    api_base: "https://api-iam.intercom.io",
+    app_id: "z1n0atmw",
+    intercom_user_jwt: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNTA2ODY4NzkxMDgxNSIsImVtYWlsIjoiamRAemVuZGVza2RlbW8uY29tIiwicm9sZSI6ImFkbWluIiwibmFtZSI6IkphbWVzIER1bm5lIn0.6EgD9WZMjt-eERouRDj7aHcmrohrCxxyW-QC7FrZwMc"
+    //user_id: "axa864",
+    //email: "luis@mdlsolutions.net",
+    //name: "Tess Sullivan"
+    //intercom_user_jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTUzNzg2IiwiaWF0IjoxNzU0Njg5ODgwfQ.2TpIL_dcAI5O8qp4XkunnDrcKzlijhtWklahbrm_HAs"
+    // In Salesforce, ensure that each user has a unique external_id, typically their user_id or email.
+    // In Intercom, when installing Messenger, pass a user_id that matches the external_id used for that user in Salesforce.
+    // If no user_id exists, the user's email is used instead to match the external_id in Salesforce.
+
+  };
+</script>
+
+
+<script>
+  // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/z1n0atmw'
+  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/nzmi3xql';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+</script>
+
+</body>
+</html>
