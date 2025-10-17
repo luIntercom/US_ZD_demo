@@ -6,44 +6,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      // Utility to reset local/session storage and cookies
       function reset() {
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            // Set the cookie's expiration date to a past date to delete it
-            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         }
         window.localStorage.clear();
         window.sessionStorage.clear();
         window.location.reload();
       }
+
+      // Generate random user data
+      function generateRandomUser() {
+        const id = Math.floor(Math.random() * 1e15).toString();
+        const firstNames = ["Alex", "Jamie", "Taylor", "Jordan", "Sam", "Casey", "Riley", "Morgan", "Chris", "Avery"];
+        const lastNames = ["Smith", "Johnson", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas"];
+        const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const name = `${first} ${last}`;
+        const email = `${first.toLowerCase()}.${last.toLowerCase()}@example.com`;
+        return { id, name, email };
+      }
+
+      // Request Intercom JWT from the backend
+      async function getIntercomJWT(user) {
+        try {
+          const res = await fetch('/generate-intercom-jwt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id,
+              name: user.name,
+              email: user.email
+            })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.intercom_user_jwt) {
+            throw new Error(data.error || 'Failed to generate JWT');
+          }
+          return data.intercom_user_jwt;
+        } catch (err) {
+          console.error('JWT generation error:', err);
+          return null;
+        }
+      }
+
+      // Initialize Intercom with JWT
+      async function initIntercom() {
+        const user = generateRandomUser();
+        const jwt = await getIntercomJWT(user);
+
+        if (!jwt) {
+          alert('Could not retrieve JWT');
+          return;
+        }
+
+        window.intercomSettings = {
+          api_base: "https://api-iam.intercom.io",
+          app_id: "z1n0atmw",
+          intercom_user_jwt: jwt
+        };
+
+        console.log('✅ Intercom user initialized', window.intercomSettings);
+
+        // Load Intercom widget
+        (function() {
+          var w = window;
+          var ic = w.Intercom;
+          if (typeof ic === "function") {
+            ic('reattach_activator');
+            ic('update', w.intercomSettings);
+          } else {
+            var d = document;
+            var i = function() { i.c(arguments); };
+            i.q = [];
+            i.c = function(args) { i.q.push(args); };
+            w.Intercom = i;
+            var l = function() {
+              var s = d.createElement('script');
+              s.type = 'text/javascript';
+              s.async = true;
+              s.src = 'https://widget.intercom.io/widget/z1n0atmw';
+              var x = d.getElementsByTagName('script')[0];
+              x.parentNode.insertBefore(s, x);
+            };
+            if (document.readyState === 'complete') { l(); }
+            else if (w.attachEvent) { w.attachEvent('onload', l); }
+            else { w.addEventListener('load', l, false); }
+          }
+        })();
+      }
+
+      // Start Intercom once page loads
+      window.addEventListener('DOMContentLoaded', initIntercom);
     </script>
   </head>
-  <body class="p-6 flex flex-col flex-1 items-center justify-center min-h-screen bg-cover" style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
+
+  <body class="p-6 flex flex-col flex-1 items-center justify-center min-h-screen bg-cover" 
+        style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
     <div class="flex flex-col space-y-2 items-center">
       <div>
-        <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" height="50" width="50"  >
+        <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" 
+             height="50" width="50" alt="Fin avatar">
       </div>
       <button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
-<script>
-  window.intercomSettings = {
-    api_base: "https://api-iam.intercom.io",
-    app_id: "z1n0atmw",
-    intercom_user_jwt: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNTA2ODY4NzkxMDgxNSIsImVtYWlsIjoiamRAemVuZGVza2RlbW8uY29tIiwicm9sZSI6ImFkbWluIiwibmFtZSI6IkphbWVzIER1bm5lIn0.6EgD9WZMjt-eERouRDj7aHcmrohrCxxyW-QC7FrZwMc",
-    //user_id: "5068687910815", // IMPORTANT: Replace "user.id" with the variable you use to capture the user's ID
-    //name: "James Dunne",
-    //email: "jd@zendeskdemo.com"
-  };
-</script>
-<script>
-  // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/z1n0atmw'
-  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/z1n0atmw';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
-</script>
+    </div>
 
-<!-- Start of d3v-mdlsolutions Zendesk Widget script -->
-<script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
-<!-- End of d3v-mdlsolutions Zendesk Widget script -->  
+    <!-- Zendesk Widget -->
+    <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"></script>
   </body>
 </html>
