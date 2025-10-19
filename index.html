@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>Fin for SFDC</title>
+  <title>Fin Demo</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -84,34 +84,36 @@
   </script>
 </head>
 
-<body class="relative p-6 flex flex-col flex-1 items-center justify-center min-h-screen overflow-hidden">
+<body class="relative flex flex-col items-center justify-center min-h-screen overflow-hidden text-center text-white">
 
   <!-- 🎥 Background Video -->
   <video autoplay muted loop playsinline
-         class="absolute top-0 left-0 w-full h-full object-cover object-top opacity-40 z-[-1]">
+         class="absolute top-0 left-0 w-full h-full object-cover object-top z-[-2]">
     <source src="https://videos.ctfassets.net/xny2w179f4ki/4qwcJQYYUbB2aQgIoSKu0B/18bb952c143cc39b5934bb21765cf2b4/Fin2_EnergySource_KW_v034_HybridSharpened_wParticles_WEB_10mb.mp4"
             type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
-  <!-- Main UI -->
-  <div class="flex flex-col space-y-2 items-center">
+  <!-- 🌑 Dark overlay to tone down brightness -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-[#2b0045]/80 z-[-1]"></div>
+
+  <!-- Main Content -->
+  <h1 class="text-4xl md:text-5xl font-bold mb-8 drop-shadow-lg">Fin Demo</h1>
+
+  <div class="flex flex-col items-center space-y-4 bg-black/50 px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm">
     <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png"
-         height="50" width="50" alt="Fin Avatar">
+         height="60" width="60" alt="Fin Avatar" class="mx-auto">
 
-    <button class="bg-emerald-600 text-white p-2 m-2 rounded hover:bg-emerald-700"
-            onclick="newUser()">
-      New User
-    </button>
-  </div>
-
-  <div class="bg-white/90 mt-4 w-full max-w-md rounded-lg shadow p-4">
-    <h2 class="text-lg font-semibold mb-2">Current Identity</h2>
-    <div class="grid grid-cols-1 gap-2">
-      <div><span class="font-medium">User ID:</span> <span id="currentUserId" class="break-all"></span></div>
+    <div class="space-y-1 text-sm opacity-90">
+      <div><span class="font-medium">User ID:</span> <span id="currentUserId"></span></div>
       <div><span class="font-medium">Name:</span> <span id="currentName"></span></div>
       <div><span class="font-medium">Email:</span> <span id="currentEmail"></span></div>
     </div>
+
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
+            onclick="newUser()">
+      Switch User
+    </button>
   </div>
 
   <script>
