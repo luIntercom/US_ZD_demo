@@ -84,7 +84,7 @@
   </script>
 </head>
 
-<body class="relative flex flex-col items-center justify-center min-h-screen overflow-hidden text-center text-white">
+<body class="relative flex flex-col items-center justify-start min-h-screen overflow-hidden text-center text-white">
 
   <!-- 🎥 Background Video -->
   <video autoplay muted loop playsinline
@@ -97,51 +97,14 @@
   <!-- 🌑 Dark overlay to tone down brightness -->
   <div class="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-[#2b0045]/80 z-[-1]"></div>
 
-  <!-- Main Content -->
-  <h1 class="text-4xl md:text-5xl font-bold mb-8 drop-shadow-lg">Fin Demo</h1>
+  <!-- Title -->
+  <h1 class="text-4xl md:text-5xl font-bold mt-16 drop-shadow-lg">Fin Demo</h1>
 
-  <div class="flex flex-col items-center space-y-4 bg-black/50 px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm">
+  <!-- Lowered User Info Box -->
+  <div class="flex flex-col items-center space-y-4 bg-black/50 px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm mt-32 md:mt-40">
     <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png"
          height="60" width="60" alt="Fin Avatar" class="mx-auto">
 
     <div class="space-y-1 text-sm opacity-90">
       <div><span class="font-medium">User ID:</span> <span id="currentUserId"></span></div>
-      <div><span class="font-medium">Name:</span> <span id="currentName"></span></div>
-      <div><span class="font-medium">Email:</span> <span id="currentEmail"></span></div>
-    </div>
-
-    <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
-            onclick="newUser()">
-      Switch User
-    </button>
-  </div>
-
-  <script>
-    // Generate the initial identity & boot the first session
-    generateIdentityAndJwt();
-  </script>
-
-  <!-- Intercom widget -->
-  <script>
-    (function () {
-      var w = window; var ic = w.Intercom;
-      if (typeof ic === "function") {
-        ic('boot', w.intercomSettings);
-      } else {
-        var d = document; var i = function () { i.c(arguments); }; i.q = [];
-        i.c = function (args) { i.q.push(args); }; w.Intercom = i;
-        var l = function () {
-          var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true;
-          s.src = 'https://widget.intercom.io/widget/z1n0atmw';
-          var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
-        };
-        w.Intercom('boot', w.intercomSettings);
-
-        if (d.readyState === 'complete') { l(); }
-        else if (w.attachEvent) { w.attachEvent('onload', l); }
-        else { w.addEventListener('load', l, false); }
-      }
-    })();
-  </script>
-</body>
-</html>
+      <div><span class="font-medium">Name:
