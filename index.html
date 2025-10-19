@@ -1,98 +1,189 @@
 <!doctype html>
 <html>
 <head>
-<title>Fin for SFDC</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-function reset() {
-const cookies = document.cookie.split(";");
-for (let i = 0; i < cookies.length; i++) {
-const cookie = cookies[i];
-const eqPos = cookie.indexOf("=");
-const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-}
-window.localStorage.clear();
-window.sessionStorage.clear();
-window.location.reload();
-}
-function toggleForm() {
-const form = document.getElementById("ticketForm");
-form.classList.toggle("hidden");
-}
-function submitTicket(e) {
-e.preventDefault();
-const name = document.getElementById("ticketName").value;
-const email = document.getElementById("ticketEmail").value;
-const subject = document.getElementById("ticketSubject").value;
-const message = document.getElementById("ticketMessage").value;
-// For demo: just log form values
-console.log({ name, email, subject, message });
-alert("Ticket submitted successfully!");
-// Reset and hide form
-document.getElementById("ticketForm").reset();
-toggleForm();
-}
-</script>
+  <title>Fin for SFDC</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsrsasign for client-side JWT signing (demo only) -->
+  <script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
+
+  <script>
+    // -------- DEMO HELPERS --------
+    // Generate a random 16-byte hex id
+    function randomUserId() {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Pick a random name (includes James to trigger the special email rule)
+    function randomName() {
+      const names = [
+        "James", "Tess Sullivan", "Alex Kim", "Jordan Lee",
+        "Taylor Morgan", "Sam Patel", "Avery Chen", "Riley Adams"
+      ];
+      return names[Math.floor(Math.random() * names.length)];
+    }
+
+    // Email rule: if name is exactly "James" (case-insensitive), email = james@zddemo.com
+    // otherwise make a simple email from the first token of the name.
+    function emailFromName(name) {
+      if (name.trim().toLowerCase() === "james") return "james@zddemo.com";
+      const first = name.trim().split(/\s+/)[0].toLowerCase();
+      return `${first}@zddemo.com`;
+    }
+
+    // Create a JWT using HS256 with jsrsasign (demo only; secret exposed!)
+    function createJwt({ user_id, email, name }) {
+      const secret = "Saxzwzo-j2uti4HtYx6PVgoYM4Ds_4OpfW9D0ry7Ujc"; // ⚠️ DEMO ONLY
+      const header = { alg: "HS256", typ: "JWT" };
+      const payload = {
+        user_id,
+        email,
+        name,
+        iss: "demo-client",
+        iat: KJUR.jws.IntDate.get("now"),
+        exp: KJUR.jws.IntDate.get("now + 1hour")
+      };
+      return KJUR.jws.JWS.sign("HS256", JSON.stringify(header), JSON.stringify(payload), secret);
+    }
+
+    // Generate identity + JWT and attach to window.intercomSettings
+    function generateIdentityAndJwt() {
+      const name = randomName();
+      const user_id = randomUserId();
+      const email = emailFromName(name);
+
+      const token = createJwt({ user_id, email, name });
+
+      window.intercomSettings = {
+        api_base: "https://api-iam.intercom.io",
+        app_id: "z1n0atmw",
+        intercom_user_jwt: token
+      };
+
+      // Populate the visible demo panel
+      const idEl = document.getElementById("currentUserId");
+      const nameEl = document.getElementById("currentName");
+      const emailEl = document.getElementById("currentEmail");
+      const jwtEl = document.getElementById("currentJwt");
+
+      if (idEl && nameEl && emailEl && jwtEl) {
+        idEl.textContent = user_id;
+        nameEl.textContent = name;
+        emailEl.textContent = email;
+        jwtEl.textContent = token;
+      }
+
+      // If Intercom has already booted, update it live
+      if (typeof window.Intercom === "function") {
+        window.Intercom("update", window.intercomSettings);
+      }
+
+      return token;
+    }
+
+    // -------- EXISTING DEMO FUNCTIONS --------
+    function reset() {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+      window.localStorage.clear();
+      window.sessionStorage.clear();
+      window.location.reload();
+    }
+    function toggleForm() {
+      const form = document.getElementById("ticketForm");
+      form.classList.toggle("hidden");
+    }
+    function submitTicket(e) {
+      e.preventDefault();
+      const name = document.getElementById("ticketName").value;
+      const email = document.getElementById("ticketEmail").value;
+      const subject = document.getElementById("ticketSubject").value;
+      const message = document.getElementById("ticketMessage").value;
+      console.log({ name, email, subject, message });
+      alert("Ticket submitted successfully!");
+      document.getElementById("ticketForm").reset();
+      toggleForm();
+    }
+  </script>
 </head>
+
 <body class="p-6 flex flex-col flex-1 items-center justify-center min-h-screen bg-cover"
-style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
-<div class="flex flex-col space-y-2 items-center">
-<div>
-<img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" height="50" width="50">
-</div>
-<button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
-<button class="bg-blue-600 text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="toggleForm()">Submit Ticket</button>
-</div>
-<!-- Hidden Ticket Form -->
-<form id="ticketForm" class="hidden bg-white shadow-md rounded-lg p-6 mt-6 w-80">
-<h2 class="text-lg font-semibold mb-4">Submit a Ticket</h2>
-<input id="ticketName" type="text" placeholder="Your Name" class="w-full border rounded p-2 mb-2" required>
-<input id="ticketEmail" type="email" placeholder="Your Email" class="w-full border rounded p-2 mb-2" required>
-<input id="ticketSubject" type="text" placeholder="Subject" class="w-full border rounded p-2 mb-2" required>
-<textarea id="ticketMessage" placeholder="Message" class="w-full border rounded p-2 mb-4" rows="3" required></textarea>
-<div class="flex justify-between">
-<button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="submitTicket(event)">Submit</button>
-<button type="button" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onclick="toggleForm()">Cancel</button>
-</div>
-</form>
-<script>
-(function(){
-var w=window;var ic=w.Intercom;
-if(typeof ic==="function"){
-ic('reattach_activator');ic('update',w.intercomSettings);
-} else {
-var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};
-w.Intercom=i;var l=function(){
-var s=d.createElement('script');s.type='text/javascript';s.async=true;
-s.src='https://widget.intercom.io/widget/nzmi3xql';
-var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);
-};
-if(document.readyState==='complete'){l();}
-else if(w.attachEvent){w.attachEvent('onload',l);}
-else{w.addEventListener('load',l,false);}
-}
-})();
-</script>
-    <script>
-  window.intercomSettings = {
-    api_base: "https://api-iam.intercom.io",
-    app_id: "z1n0atmw",
-    intercom_user_jwt: "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNTA2ODY4NzkxMDgxNSIsImVtYWlsIjoiamRAemVuZGVza2RlbW8uY29tIiwicm9sZSI6ImFkbWluIiwibmFtZSI6IkphbWVzIER1bm5lIn0.6EgD9WZMjt-eERouRDj7aHcmrohrCxxyW-QC7FrZwMc"
-    //user_id: "axa864",
-    //email: "luis@mdlsolutions.net",
-    //name: "Tess Sullivan"
-    //intercom_user_jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMTUzNzg2IiwiaWF0IjoxNzU0Njg5ODgwfQ.2TpIL_dcAI5O8qp4XkunnDrcKzlijhtWklahbrm_HAs"
-    // In Salesforce, ensure that each user has a unique external_id, typically their user_id or email.
-    // In Intercom, when installing Messenger, pass a user_id that matches the external_id used for that user in Salesforce.
-    // If no user_id exists, the user's email is used instead to match the external_id in Salesforce.
-  };
-</script>
-<script>
-  // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/z1n0atmw'
-  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/nzmi3xql';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
-</script>
+  style="background-image: url('https://downloads.intercomcdn.com/i/o/1051523575/8c16c6bb97ae791131ead20c/blur.jpg')">
+
+  <div class="flex flex-col space-y-2 items-center">
+    <div>
+      <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png" height="50" width="50" alt="Fin Avatar">
+    </div>
+
+    <div class="flex flex-wrap justify-center">
+      <button class="bg-black text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="reset()">Reset</button>
+      <button class="bg-blue-600 text-white p-2 m-2 rounded hover:bg-opacity-75" onclick="toggleForm()">Submit Ticket</button>
+      <!-- New: Generate identity & JWT and (re)initialize Intercom -->
+      <button class="bg-emerald-600 text-white p-2 m-2 rounded hover:bg-emerald-700" onclick="generateIdentityAndJwt()">Generate Identity & JWT</button>
+    </div>
+  </div>
+
+  <!-- Visible demo panel for current identity/JWT -->
+  <div class="bg-white/90 mt-4 w-full max-w-2xl rounded-lg shadow p-4">
+    <h2 class="text-lg font-semibold mb-2">Current Demo Identity</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div><span class="font-medium">User ID:</span> <span id="currentUserId" class="break-all"></span></div>
+      <div><span class="font-medium">Name:</span> <span id="currentName"></span></div>
+      <div><span class="font-medium">Email:</span> <span id="currentEmail"></span></div>
+    </div>
+    <div class="mt-3">
+      <div class="font-medium">JWT:</div>
+      <pre id="currentJwt" class="bg-gray-100 p-2 rounded text-xs whitespace-pre-wrap break-all"></pre>
+    </div>
+    <p class="text-xs text-amber-700 mt-2">Demo-only: the signing secret is exposed in page source.</p>
+  </div>
+
+  <!-- Hidden Ticket Form -->
+  <form id="ticketForm" class="hidden bg-white shadow-md rounded-lg p-6 mt-6 w-80">
+    <h2 class="text-lg font-semibold mb-4">Submit a Ticket</h2>
+    <input id="ticketName" type="text" placeholder="Your Name" class="w-full border rounded p-2 mb-2" required>
+    <input id="ticketEmail" type="email" placeholder="Your Email" class="w-full border rounded p-2 mb-2" required>
+    <input id="ticketSubject" type="text" placeholder="Subject" class="w-full border rounded p-2 mb-2" required>
+    <textarea id="ticketMessage" placeholder="Message" class="w-full border rounded p-2 mb-4" rows="3" required></textarea>
+    <div class="flex justify-between">
+      <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="submitTicket(event)">Submit</button>
+      <button type="button" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500" onclick="toggleForm()">Cancel</button>
+    </div>
+  </form>
+
+  <!-- Intercom Settings & Loader -->
+  <script>
+    // Generate a user + JWT BEFORE loading the Intercom widget so it boots with the token
+    generateIdentityAndJwt();
+  </script>
+
+  <!-- Single Intercom boot script using your app_id (z1n0atmw) -->
+  <script>
+    (function () {
+      var w = window; var ic = w.Intercom;
+      if (typeof ic === "function") {
+        ic('reattach_activator'); ic('update', w.intercomSettings);
+      } else {
+        var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); };
+        w.Intercom = i; var l = function () {
+          var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true;
+          // Use your app id here
+          s.src = 'https://widget.intercom.io/widget/z1n0atmw';
+          var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+        };
+        if (d.readyState === 'complete') { l(); }
+        else if (w.attachEvent) { w.attachEvent('onload', l); }
+        else { w.addEventListener('load', l, false); }
+      }
+    })();
+  </script>
 </body>
 </html>
