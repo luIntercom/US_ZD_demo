@@ -17,16 +17,17 @@
 
     function randomName() {
       const names = [
-        "James", "Tess Sullivan", "Alex Kim", "Jordan Lee",
-        "Taylor Morgan", "Sam Patel", "Avery Chen", "Riley Adams"
+        "James", "Tess", "Alex", "Jordan",
+        "Taylor", "Sam", "Avery", "Riley", "Luis"
       ];
       return names[Math.floor(Math.random() * names.length)];
     }
 
-    function emailFromName(name) {
-      if (name.trim().toLowerCase() === "james") return "james@zddemo.com";
-      const first = name.trim().split(/\s+/)[0].toLowerCase();
-      return `${first}@zddemo.com`;
+    // New rule: <name><first 6 digits of user_id>@zddemo.com
+    function emailFromNameAndUserId(name, user_id) {
+      const cleanName = name.trim().toLowerCase().replace(/\s+/g, '');
+      const shortId = user_id.slice(0, 6);
+      return `${cleanName}${shortId}@zddemo.com`;
     }
 
     function createJwt({ user_id, email, name }) {
@@ -43,11 +44,11 @@
       return KJUR.jws.JWS.sign("HS256", JSON.stringify(header), JSON.stringify(payload), secret);
     }
 
-    // Generate identity + JWT and attach to window.intercomSettings
+    // Generate identity + JWT
     function generateIdentityAndJwt() {
       const name = randomName();
       const user_id = randomUserId();
-      const email = emailFromName(name);
+      const email = emailFromNameAndUserId(name, user_id);
       const token = createJwt({ user_id, email, name });
 
       window.intercomSettings = {
@@ -56,7 +57,6 @@
         intercom_user_jwt: token
       };
 
-      // Update visible identity info (JWT remains hidden)
       document.getElementById("currentName").textContent = name;
       document.getElementById("currentEmail").textContent = email;
       document.getElementById("currentUserId").textContent = user_id;
@@ -64,20 +64,17 @@
       return token;
     }
 
-    // New: Fully switch to a new user/session
+    // Fully switch to a new user/session
     function newUser() {
-      // If Intercom is present, end the current session first
       if (typeof window.Intercom === "function") {
         window.Intercom("shutdown");
       }
-      // Create fresh identity + token
+
       generateIdentityAndJwt();
 
-      // Boot a brand-new session with the new token
       if (typeof window.Intercom === "function") {
         window.Intercom("boot", window.intercomSettings);
       } else {
-        // If the library isn't loaded yet, queue the boot call
         (window.Intercom || function(){ (window.Intercom.q = window.Intercom.q || []).push(arguments); })(
           "boot",
           window.intercomSettings
@@ -110,7 +107,7 @@
   </div>
 
   <script>
-    // Generate an initial identity & boot a first session ASAP
+    // Generate the initial identity & boot the first session
     generateIdentityAndJwt();
   </script>
 
@@ -119,7 +116,6 @@
     (function () {
       var w = window; var ic = w.Intercom;
       if (typeof ic === "function") {
-        // Already present (unlikely on first load). Boot with current settings.
         ic('boot', w.intercomSettings);
       } else {
         var d = document; var i = function () { i.c(arguments); }; i.q = [];
@@ -129,7 +125,6 @@
           s.src = 'https://widget.intercom.io/widget/z1n0atmw';
           var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
         };
-        // Queue a boot so when the lib loads it starts the session
         w.Intercom('boot', w.intercomSettings);
 
         if (d.readyState === 'complete') { l(); }
