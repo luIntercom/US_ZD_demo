@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>Fin for ZD</title>
+  <title>Fin for SFDC</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -43,6 +43,7 @@
       return KJUR.jws.JWS.sign("HS256", JSON.stringify(header), JSON.stringify(payload), secret);
     }
 
+    // Generate identity + JWT and attach to window.intercomSettings
     function generateIdentityAndJwt() {
       const name = randomName();
       const user_id = randomUserId();
@@ -55,12 +56,32 @@
         intercom_user_jwt: token
       };
 
+      // Update visible identity info (JWT remains hidden)
       document.getElementById("currentName").textContent = name;
       document.getElementById("currentEmail").textContent = email;
       document.getElementById("currentUserId").textContent = user_id;
 
+      return token;
+    }
+
+    // New: Fully switch to a new user/session
+    function newUser() {
+      // If Intercom is present, end the current session first
       if (typeof window.Intercom === "function") {
-        window.Intercom("update", window.intercomSettings);
+        window.Intercom("shutdown");
+      }
+      // Create fresh identity + token
+      generateIdentityAndJwt();
+
+      // Boot a brand-new session with the new token
+      if (typeof window.Intercom === "function") {
+        window.Intercom("boot", window.intercomSettings);
+      } else {
+        // If the library isn't loaded yet, queue the boot call
+        (window.Intercom || function(){ (window.Intercom.q = window.Intercom.q || []).push(arguments); })(
+          "boot",
+          window.intercomSettings
+        );
       }
     }
   </script>
@@ -74,13 +95,13 @@
          height="50" width="50" alt="Fin Avatar">
 
     <button class="bg-emerald-600 text-white p-2 m-2 rounded hover:bg-emerald-700"
-            onclick="generateIdentityAndJwt()">
+            onclick="newUser()">
       New User
     </button>
   </div>
 
   <div class="bg-white/90 mt-4 w-full max-w-md rounded-lg shadow p-4">
-    <h2 class="text-lg font-semibold mb-2">Current User</h2>
+    <h2 class="text-lg font-semibold mb-2">Current Identity</h2>
     <div class="grid grid-cols-1 gap-2">
       <div><span class="font-medium">User ID:</span> <span id="currentUserId" class="break-all"></span></div>
       <div><span class="font-medium">Name:</span> <span id="currentName"></span></div>
@@ -89,7 +110,7 @@
   </div>
 
   <script>
-    // Generate a user + JWT BEFORE loading Intercom widget
+    // Generate an initial identity & boot a first session ASAP
     generateIdentityAndJwt();
   </script>
 
@@ -98,7 +119,8 @@
     (function () {
       var w = window; var ic = w.Intercom;
       if (typeof ic === "function") {
-        ic('reattach_activator'); ic('update', w.intercomSettings);
+        // Already present (unlikely on first load). Boot with current settings.
+        ic('boot', w.intercomSettings);
       } else {
         var d = document; var i = function () { i.c(arguments); }; i.q = [];
         i.c = function (args) { i.q.push(args); }; w.Intercom = i;
@@ -107,6 +129,9 @@
           s.src = 'https://widget.intercom.io/widget/z1n0atmw';
           var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
         };
+        // Queue a boot so when the lib loads it starts the session
+        w.Intercom('boot', w.intercomSettings);
+
         if (d.readyState === 'complete') { l(); }
         else if (w.attachEvent) { w.attachEvent('onload', l); }
         else { w.addEventListener('load', l, false); }
