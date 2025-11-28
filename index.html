@@ -181,38 +181,45 @@
 <!-- <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=YOUR_ZENDESK_KEY"></script> -->
 
 <script>
-    function initZendeskLogin() {
-      if (typeof zE !== "function") {
-        console.error("Zendesk Web SDK (zE) is not loaded yet.");
-        return;
+function initZendeskLogin() {
+  if (typeof zE !== "function") {
+    console.error("Zendesk Web SDK (zE) is not loaded yet.");
+    return;
+  }
+
+  zE("messenger", "loginUser",
+    // 1) jwtCallback: must be a FUNCTION
+    function jwtCallback(callback) {
+      // if you fetch the token from your backend, do it here, then:
+      const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE";
+      callback(jwt);
+    },
+
+    // 2) login result callback
+    function loginCallback(error) {
+      if (error) {
+        console.error("Zendesk loginUser error:", error);
+      } else {
+        console.log("Zendesk loginUser success");
       }
-
-      zE("messenger", "loginUser",
-        "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE",
-        function loginCallback(error) {
-          if (error) {
-            console.error("Zendesk loginUser error:", error);
-          } else {
-            console.log("Zendesk loginUser success");
-          }
-        }
-      );
     }
+  );
+}
 
-    // Wait for window load and for zE to appear
-    window.addEventListener("load", function () {
-      var attempts = 0;
-      var maxAttempts = 40;   // ~10s
-      var interval = setInterval(function () {
-        if (typeof zE === "function") {
-          clearInterval(interval);
-          console.log("zE is defined, calling loginUser...");
-          initZendeskLogin();
-        } else if (++attempts >= maxAttempts) {
-          clearInterval(interval);
-          console.error("zE is still not defined after waiting; check your Zendesk snippet key / loading.");
-        }
-      }, 250);
+window.addEventListener("load", function () {
+  let attempts = 0;
+  const maxAttempts = 40;
+  const interval = setInterval(function () {
+    if (typeof zE === "function") {
+      clearInterval(interval);
+      console.log("zE is defined, calling loginUser...");
+      initZendeskLogin();
+    } else if (++attempts >= maxAttempts) {
+      clearInterval(interval);
+      console.error("zE is still not defined after waiting; check your Zendesk snippet key / loading.");
+    }
+  }, 250);
+});
     });
   </script>
 </body>
