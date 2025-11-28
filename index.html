@@ -154,14 +154,17 @@
     }
   };*/
 
-  zE( "messenger", "loginUser",
-  "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE"
+zE("messenger", "loginUser",
+  "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE",
   function loginCallback(error) {
     if (error) {
-      // Example error handling
-      const { type, reason, message } = error
+      console.error("Zendesk loginUser error:", error);
+    } else {
+      console.log("Zendesk loginUser success");
     }
-  })
+  }
+);
+
 
 </script>
 
