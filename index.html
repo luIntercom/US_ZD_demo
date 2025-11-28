@@ -146,14 +146,26 @@
 
 
   <script>
-  window.zESettings = {
+  /*window.zESettings = {
     webWidget: {
       authenticate: {
         jwt: "{{eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE}}"
       }
     }
-  };
+  };*/
+
+  zE( "messenger", "loginUser",
+  eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE
+  function loginCallback(error) {
+    if (error) {
+      // Example error handling
+      const { type, reason, message } = error
+    }
+  }
+
 </script>
+
+  
   
   <!-- Start of d3v-mdlsolutions Zendesk Widget script -->
   <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
