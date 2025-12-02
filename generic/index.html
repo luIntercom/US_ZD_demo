@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+  <title>Generic handoff</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
+
+  <script>
+    // -------- DEMO HELPERS --------
+    function randomUserId() {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function randomName() {
+      const names = [
+        "James", "Tess", "Alex", "Jordan",
+        "Taylor", "Sam", "Avery", "Riley", "Luis"
+      ];
+      return names[Math.floor(Math.random() * names.length)];
+    }
+
+    // New rule: <name><first 6 digits of user_id>@zddemo.com
+    function emailFromNameAndUserId(name, user_id) {
+      const cleanName = name.trim().toLowerCase().replace(/\s+/g, '');
+      const shortId = user_id.slice(0, 6);
+      return `${cleanName}${shortId}@zddemo.com`;
+    }
+
+    function createJwt({ user_id, email, name }) {
+      const secret = "1rzZt5OzoTVQUFnEg53iz3yb5av9f13mmsKLYs3JEAo"; // demo-only
+      const header = { alg: "HS256", typ: "JWT" };
+      const payload = {
+        user_id,
+        email,
+        name,
+        iss: "demo-client",
+        iat: KJUR.jws.IntDate.get("now"),
+        exp: KJUR.jws.IntDate.get("now + 1hour")
+      };
+      return KJUR.jws.JWS.sign("HS256", JSON.stringify(header), JSON.stringify(payload), secret);
+    }
+
+    // Generate identity + JWT
+    function generateIdentityAndJwt() {
+      const name = randomName();
+      const user_id = randomUserId();
+      const email = emailFromNameAndUserId(name, user_id);
+      const token = createJwt({ user_id, email, name });
+
+      window.intercomSettings = {
+        api_base: "https://api-iam.intercom.io",
+        app_id: "gh47q90q",
+        intercom_user_jwt: token
+      };
+
+      document.getElementById("currentName").textContent = name;
+      document.getElementById("currentEmail").textContent = email;
+      document.getElementById("currentUserId").textContent = user_id;
+
+      return token;
+    }
+
+    // Fully switch to a new user/session
+    function newUser() {
+      if (typeof window.Intercom === "function") {
+        window.Intercom("shutdown");
+      }
+
+      generateIdentityAndJwt();
+
+      if (typeof window.Intercom === "function") {
+        window.Intercom("boot", window.intercomSettings);
+      } else {
+        (window.Intercom || function(){ (window.Intercom.q = window.Intercom.q || []).push(arguments); })(
+          "boot",
+          window.intercomSettings
+        );
+      }
+    }
+  </script>
+  <script
+    id="ze-snippet"
+    src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf">
+  </script>
+</head>
+
+<body class="relative flex flex-col items-center justify-center min-h-screen overflow-hidden text-center text-white">
+
+  <!-- 🎥 Background Video -->
+  <video autoplay muted loop playsinline
+         class="absolute top-0 left-0 w-full h-full object-cover object-top z-[-2]">
+    <source src="https://videos.ctfassets.net/xny2w179f4ki/4qwcJQYYUbB2aQgIoSKu0B/18bb952c143cc39b5934bb21765cf2b4/Fin2_EnergySource_KW_v034_HybridSharpened_wParticles_WEB_10mb.mp4"
+            type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- 🌑 Dark overlay to tone down brightness -->
+  <div class="absolute inset-0 bg-gradient-to-b from-black via-black/70 to-[#2b0045]/80 z-[-1]"></div>
+
+  <!-- Main Content -->
+  <h1 class="text-4xl md:text-5xl font-bold mb-8 drop-shadow-lg">Generic handoff</h1>
+
+  <div class="flex flex-col items-center space-y-4 bg-black/50 px-8 py-6 rounded-xl shadow-lg backdrop-blur-sm">
+    <img src="https://static.intercomassets.com/assets/default-avatars/fin/128-6a5eabbb84cc2b038b2afc6698ca0a974faf7adc9ea9f0fb3c3e78ac12543bc5.png"
+         height="60" width="60" alt="Fin Avatar" class="mx-auto">
+
+    <div class="space-y-1 text-sm opacity-90">
+      <div><span class="font-medium">User ID:</span> <span id="currentUserId"></span></div>
+      <div><span class="font-medium">Name:</span> <span id="currentName"></span></div>
+      <div><span class="font-medium">Email:</span> <span id="currentEmail"></span></div>
+    </div>
+
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
+            onclick="newUser()">
+      Switch User
+    </button>
+  </div>
+
+  <script>
+    // Generate the initial identity & boot the first session
+    generateIdentityAndJwt();
+  </script>
+
+  <!-- Intercom widget -->
+  <script>
+    (function () {
+      var w = window; var ic = w.Intercom;
+      if (typeof ic === "function") {
+        ic('boot', w.intercomSettings);
+      } else {
+        var d = document; var i = function () { i.c(arguments); }; i.q = [];
+        i.c = function (args) { i.q.push(args); }; w.Intercom = i;
+        var l = function () {
+          var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true;
+          s.src = 'https://widget.intercom.io/widget/gh47q90q';
+          var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+        };
+        w.Intercom('boot', w.intercomSettings);
+
+        if (d.readyState === 'complete') { l(); }
+        else if (w.attachEvent) { w.attachEvent('onload', l); }
+        else { w.addEventListener('load', l, false); }
+      }
+    })();
+  </script>
+
+
+  <script>
+  /*window.zESettings = {
+    webWidget: {
+      authenticate: {
+        jwt: "{{eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE}}"
+      }
+    }
+  };*/
+
+/*zE("messenger", "loginUser",
+  "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSmVzcyIsImVtYWlsIjoiamVzc0B6ZGRlbW8uY29tIiwiZXh0ZXJuYWxfaWQiOiJ6ZF85ODMyODQ2LTEifQ.LhvhNAl3dEo9P_9jhfVpUlQuseVw0ah8MaIpgY7sYcE",
+  function loginCallback(error) {
+    if (error) {
+      console.error("Zendesk loginUser error:", error);
+    } else {
+      console.log("Zendesk loginUser success");
+    }
+  }
+);*/
+
+
+</script>
+
+  
+  
+  <!-- Start of d3v-mdlsolutions Zendesk Widget script
+  <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=64e085db-b7a2-4e29-911a-1987b55892bf"> </script>
+  <!-- End of d3v-mdlsolutions Zendesk Widget script -->
+  <!-- Make sure this is in your HTML BEFORE the script below -->
+<!-- <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=YOUR_ZENDESK_KEY"></script> -->
+
+<script>
+function initZendeskLogin() {
+  if (typeof zE !== "function") {
+    console.error("Zendesk Web SDK (zE) is not loaded yet.");
+    return;
+  }
+
+  zE("messenger", "loginUser",
+    // 1) jwtCallback: must be a FUNCTION
+    function jwtCallback(callback) {
+      // if you fetch the token from your backend, do it here, then:
+      const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJleHRlcm5hbF9pZCI6InpkXzk4MzI4NDYtMyIsImVtYWlsIjoibHVpc0BtZGxzb2x1dGlvbnMubmV0IiwibmFtZSI6IkFteSBIYWxwaW4iLCJzY29wZSI6InVzZXIifQ.CVD1iVHcXPW6f3LQAli6NJUUCx3dkfwJCXHaYynQG6k";
+      callback(jwt);
+    },
+
+    // 2) login result callback
+    function loginCallback(error) {
+      if (error) {
+        console.error("Zendesk loginUser error:", error);
+      } else {
+        console.log("Zendesk loginUser success");
+      }
+    }
+  );
+}
+
+window.addEventListener("load", function () {
+  let attempts = 0;
+  const maxAttempts = 40;
+  const interval = setInterval(function () {
+    if (typeof zE === "function") {
+      clearInterval(interval);
+      console.log("zE is defined, calling loginUser...");
+      initZendeskLogin();
+    } else if (++attempts >= maxAttempts) {
+      clearInterval(interval);
+      console.error("zE is still not defined after waiting; check your Zendesk snippet key / loading.");
+    }
+  }, 250);
+  
+    });
+  </script>
+</body>
+</html>
